@@ -1,24 +1,47 @@
 import React, { useState } from "react";
 import { Envelope, Lock, User } from "@phosphor-icons/react";
+import Buttons from "./Buttons";
 
-const LoginForm: React.FC = () => {
+interface errorProps {
+  email?: string;
+  password?: string;
+}
+
+export default function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<errorProps>({});
+
+  function validateForm() {
+    const newErrors: { email?: string; password?: string } = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email) {
+      newErrors.email = "Email é obrigatório.";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Email inválido.";
+    }
+
+    if (!password) {
+      newErrors.password = "Senha é obrigatória";
+    } else if (password.length < 6) {
+      newErrors.password = "A senha deve ter pelo menos 6 caracteres.";
+    }
+
+    setError(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Aqui você pode adicionar a lógica para enviar os dados para o servidor
-    console.log("Email:", email);
-    console.log("Senha:", password);
+    validateForm();
   };
 
   const handleForgotPassword = () => {
-    // Lógica para redirecionar ou mostrar o modal de recuperação de senha
     console.log("Esqueci a minha senha");
   };
 
   const handleFirstAccess = () => {
-    // Lógica para redirecionar para o formulário de cadastro
     console.log("Primeiro acesso");
   };
 
@@ -37,7 +60,7 @@ const LoginForm: React.FC = () => {
         <div>
           <h2 className="text-4xl text-cyan-700 font-bold">Login</h2>
         </div>
-        <div className="mt-8 flex">
+        <div className="mt-8 flex relative">
           <label htmlFor="email" className="bg-cyan-700 px-2">
             <Envelope
               size={28}
@@ -55,11 +78,17 @@ const LoginForm: React.FC = () => {
             placeholder="Digite seu e-mail"
             className="border-b border-cyan-700  py-1 px-4 outline-none"
           />
+          {error.email && (
+            <span className="text-red-600 text-xs top-8 absolute">
+              {error.email}
+            </span>
+          )}
         </div>
-        <div className="mt-4 flex">
+        <div className="mt-4 flex relative">
           <label htmlFor="password" className="bg-cyan-700  px-2">
             <Lock size={28} weight="light" color="#f8f7f7" className="mt-1" />
           </label>
+
           <input
             type="password"
             id="password"
@@ -69,32 +98,31 @@ const LoginForm: React.FC = () => {
             placeholder="Digite sua senha"
             className="border-b border-cyan-700 py-1 px-4 outline-none"
           />
+          {error.password && (
+            <span className="text-red-600 text-xs top-8 absolute">
+              {error.password}
+            </span>
+          )}
         </div>
-        <button
-          className="mt-1 text-sm text-cyan-700"
-          type="button"
+        <Buttons
+          title={"Esqueceu a senha?"}
           onClick={handleForgotPassword}
-        >
-          Esqueceu a senha?
-        </button>
+          className={"mt-4 text-sm text-cyan-700"}
+        />
         <div className="mt-10 grid gap-4">
-          <button
-            className="py-2 rounded-lg text-white text-lg bg-cyan-700"
+          <Buttons
             type="submit"
-          >
-            Entrar
-          </button>
-          <button
-            className="py-2 rounded-lg text-white text-lg bg-cyan-500 "
+            title={"Entrar"}
+            className={"py-2 rounded-lg text-white text-lg bg-cyan-700"}
+          />
+          <Buttons
             type="button"
+            title={"Primeiro acesso"}
+            className={"py-2 rounded-lg text-white text-lg bg-cyan-500"}
             onClick={handleFirstAccess}
-          >
-            Primeiro acesso
-          </button>
+          />
         </div>
       </div>
     </form>
   );
-};
-
-export default LoginForm;
+}
